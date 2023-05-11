@@ -10,7 +10,7 @@ Begin["`Private`"]
 
 CreateNewCellMenu[
 	newMenuCell_CellObject,
-	menuAction : Up | Down | Enter : None
+	eventKey : _?StringQ : None
 ] := Module[{
 	filter,
 	items,
@@ -39,14 +39,13 @@ CreateNewCellMenu[
 
 	Assert[MatchQ[items, <| (_?StringQ -> _)... |>]];
 
-	If[(*StringQ[eventKey],*) True,
+	If[StringQ[eventKey],
 		(* This rerendering of the attached cell was done in response to the
 			user typing a key. If one of those keys was an up or down arrow,
 			adjust the selected cell. *)
-		(* Replace[ToCharacterCode[eventKey], { *)
-		Replace[menuAction, {
+		Replace[ToCharacterCode[eventKey], {
 			(* Enter/Return key *)
-			{13} | Enter :> (
+			{13} :> (
 				If[IntegerQ[selectedIndex],
 					(* FIXME: Test that this part exists. *)
 					makeSelection[newMenuCell, Part[Keys[items], selectedIndex]];
@@ -54,14 +53,14 @@ CreateNewCellMenu[
 				];
 			),
 			(* Up Arrow *)
-			{63232} | Up :> (
+			{63232} :> (
 				selectedIndex = Replace[selectedIndex, {
 					Inherited :> Length[items],
 					index_?IntegerQ :> Max[index - 1, 1]
 				}];
 			),
 			(* Down Arrow *)
-			{63233} | Down :> (
+			{63233} :> (
 				selectedIndex = Replace[selectedIndex, {
 					Inherited :> 1,
 					index_?IntegerQ :> Min[index + 1, Length[items]]
@@ -96,12 +95,14 @@ CreateNewCellMenu[
 		items
 	];
 
-	menuItems = ReplaceAt[
-		menuItems,
-		RuleDelayed[preview_, action_] :> (
-			Framed[preview, Background -> LightBlue] :> action
-		),
-		selectedIndex
+	If[selectedIndex <= Length[menuItems],
+		menuItems = ReplaceAt[
+			menuItems,
+			RuleDelayed[preview_, action_] :> (
+				Framed[preview, Background -> LightBlue] :> action
+			),
+			selectedIndex
+		];
 	];
 
 	AttachCell[
@@ -155,13 +156,22 @@ MakeMenuContent[items0_?ListQ] := Module[{
 },
 	items = Map[
 		Replace[{
-			RuleDelayed[label_, action_] :> Button[label, action, Appearance -> None],
+			RuleDelayed[label_, action_] :> (
+				RawBoxes @ TemplateBox[
+					{ToBoxes[label], Hold[action]},
+					"ConnorGray/NewCellMenuItem"
+				]
+			),
 			other_ :> Throw["FIXME: Unsupported form for popup menu item"]
 		}],
 		items0
 	];
 
-	Framed[Column[items], Frame -> All, Background -> White]
+	Framed[Column[items],
+		Frame -> All,
+		Background -> White,
+		ImageSize -> {250, Automatic}
+	]
 ]
 
 (*========================================================*)

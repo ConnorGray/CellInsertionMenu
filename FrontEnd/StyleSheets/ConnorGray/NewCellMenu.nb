@@ -25,6 +25,29 @@ Notebook[{
 		],
 		CellMargins -> {{66, 10}, {5, 8}},
 		CellEventActions -> {
+			(*
+				Don't run the FE built-in handlers for the key events Up Arrow,
+				Down Arrow, and Return.
+
+				This prevents the normal movement behavior for the up and down
+				arrow keys, and the normal "insert a new line" behavior for
+				the return key.
+
+				Note that this doesn't prevent the event handlers we define
+				below from running; it only prevents the FE's default handlers
+				from running. However, we need PassEventsDown to be True for
+				other key events so that typing inserts characters into the
+				cell in the normal way.
+			*)
+			PassEventsDown :> With[{
+				key = Replace[
+					CurrentValue["EventKey"],
+					PatternTest[s_, StringQ] :> ToCharacterCode[s]
+				]
+			},
+				(* Up Arrow, Down Arrow, Return key *)
+				key =!= {63232} && key =!= {63233} && key =!= {13}
+			],
 			(* Note: This undocumented option causes the cell event handler
 				actions to be run AFTER the default FE behavior for the
 				event runs (the default is that user-specified event handlers
@@ -33,27 +56,58 @@ Notebook[{
 				We want this because we need the character the user typed to
 				be added to the content of the cell before we read the
 				contents of the cell in our "KeyDown" event hander. *)
-			"UpArrowKeyDown" -> (
+			EvaluationOrder -> After,
+			"KeyDown" :> (
 				Needs["ConnorGray`NewCellMenu`" -> None];
-				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], Up]
-			),
-			"DownArrowKeyDown" -> (
-				Needs["ConnorGray`NewCellMenu`" -> None];
-				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], Down]
-			),
-			"ReturnKeyDown" :> (
-				Needs["ConnorGray`NewCellMenu`" -> None];
-				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], Enter]
-			),
-			EvaluationOrder -> Before,
-			(* "UpArrowKeyDown" :> (
-				Print["UP ARROW"];
-			), *)
-			(* PassEventsDown -> True, *)
-			(* "KeyDown" :> (
-				Needs["ConnorGray`NewCellMenu`" -> None];
-				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], CurrentValue["EventKey"]]
-			) *)
+				ConnorGray`NewCellMenu`CreateNewCellMenu[
+					EvaluationCell[],
+					CurrentValue["EventKey"]
+				];
+			)
+		}
+	],
+
+	(*====================================================*)
+	(* TemplateBox Styles                                 *)
+	(*====================================================*)
+
+	Cell[
+		StyleData["ConnorGray/NewCellMenuItem"],
+		(*
+			Parameters: {label, action}
+		*)
+		TemplateBoxOptions -> {
+			DisplayFunction -> Function @ ButtonBox[
+				TemplateBox[
+					{
+						PaneBox[
+							#1,
+							FrameMargins -> 0,
+							ImageMargins -> 0,
+							BaselinePosition -> Baseline,
+							ImageSize -> Full
+						],
+						FrameStyle -> Dynamic @ If[
+							CurrentValue["MouseOver"],
+							GrayLevel[0.8],
+							GrayLevel[0.98]
+						],
+						RoundingRadius -> 0,
+						FrameMargins -> {{5, 2}, {2, 2} },
+						ImageSize -> Full,
+						ImageMargins -> {{0, 0}, {0, 0} },
+						Background -> Dynamic @ If[
+							CurrentValue["MouseOver"],
+							GrayLevel[1],
+							GrayLevel[0.98]
+						]
+					},
+					"Highlighted"
+				],
+				ButtonFunction :> ReleaseHold[#2],
+				Appearance -> None,
+				Evaluator -> Automatic
+			]
 		}
 	]
 }]
