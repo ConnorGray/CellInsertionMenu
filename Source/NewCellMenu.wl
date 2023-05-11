@@ -30,7 +30,7 @@ CreateNewCellMenu[
 	];
 
 	(* Prevent more than one new cell menu from being open at a time. *)
-	NotebookDelete @ Flatten @ EchoTiming @ Map[
+	NotebookDelete @ Flatten @ Map[
 		cell |-> Cells[cell, AttachedCell -> True],
 		Cells[ParentNotebook[newMenuCell], CellStyle -> "ConnorGray/NewCellMenu"]
 	];
