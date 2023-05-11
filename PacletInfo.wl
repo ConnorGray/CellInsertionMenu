@@ -1,5 +1,5 @@
 PacletObject[<|
-	"Name" -> "ConnorGray/NewCellMenu",
+	"Name" -> "ConnorGray/CellInsertionMenu",
 	"PublisherID" -> "ConnorGray",
 	"Version" -> "0.0.1",
 	"WolframVersion" -> "13.2+",
@@ -7,7 +7,7 @@ PacletObject[<|
 		{
 			"Kernel",
 			"Root" -> "Source",
-			"Context" -> "ConnorGray`NewCellMenu`"
+			"Context" -> "ConnorGray`CellInsertionMenu`"
 		},
 		{"FrontEnd"},
 		{"Documentation", "Language" -> "English"}

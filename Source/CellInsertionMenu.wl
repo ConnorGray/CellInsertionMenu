@@ -1,4 +1,4 @@
-BeginPackage["ConnorGray`NewCellMenu`"]
+BeginPackage["ConnorGray`CellInsertionMenu`"]
 
 Needs["GeneralUtilities`"]
 
@@ -17,7 +17,7 @@ CreateNewCellMenu[
 	menuItems,
 	selectedIndex = CurrentValue[newMenuCell, {TaggingRules, "SelectedIndex"}]
 },
-	If[CurrentValue[newMenuCell, CellStyle] =!= {"ConnorGray/NewCellMenu"},
+	If[CurrentValue[newMenuCell, CellStyle] =!= {"ConnorGray/CellInsertionMenu"},
 		Return[$Failed, Module];
 	];
 
@@ -32,7 +32,7 @@ CreateNewCellMenu[
 	(* Prevent more than one new cell menu from being open at a time. *)
 	NotebookDelete @ Flatten @ Map[
 		cell |-> Cells[cell, AttachedCell -> True],
-		Cells[ParentNotebook[newMenuCell], CellStyle -> "ConnorGray/NewCellMenu"]
+		Cells[ParentNotebook[newMenuCell], CellStyle -> "ConnorGray/CellInsertionMenu"]
 	];
 
 	items = KeySelect[$stylePreviews, StringStartsQ[filter, IgnoreCase -> True]];
@@ -159,7 +159,7 @@ MakeMenuContent[items0_?ListQ] := Module[{
 			RuleDelayed[label_, action_] :> (
 				RawBoxes @ TemplateBox[
 					{ToBoxes[label], Hold[action]},
-					"ConnorGray/NewCellMenuItem"
+					"ConnorGray/CellInsertionMenuItem"
 				]
 			),
 			other_ :> Throw["FIXME: Unsupported form for popup menu item"]

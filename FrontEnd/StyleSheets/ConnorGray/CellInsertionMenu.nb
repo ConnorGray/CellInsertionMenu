@@ -3,7 +3,7 @@ Notebook[{
 
 	Cell[StyleData["Input"],
 		StyleKeyMapping -> {
-			"/" -> "ConnorGray/NewCellMenu",
+			"/" -> "ConnorGray/CellInsertionMenu",
 			(* Built in. This may need to be updated periodically. *)
 			"=" -> "WolframAlphaShort",
 			"*" -> "Item",
@@ -11,12 +11,12 @@ Notebook[{
 		}
 	],
 
-	Cell[StyleData["ConnorGray/NewCellMenu"],
+	Cell[StyleData["ConnorGray/CellInsertionMenu"],
 		Background -> GrayLevel[0.9],
 		FormatType -> TextForm,
 		Initialization :> (
-			Needs["ConnorGray`NewCellMenu`" -> None];
-			ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[]]
+			Needs["ConnorGray`CellInsertionMenu`" -> None];
+			ConnorGray`CellInsertionMenu`CreateNewCellMenu[EvaluationCell[]]
 		),
 		CellDynamicExpression -> Dynamic[
 			If[SelectedCells[] =!= {EvaluationCell[]},
@@ -58,8 +58,8 @@ Notebook[{
 				contents of the cell in our "KeyDown" event hander. *)
 			EvaluationOrder -> After,
 			"KeyDown" :> (
-				Needs["ConnorGray`NewCellMenu`" -> None];
-				ConnorGray`NewCellMenu`CreateNewCellMenu[
+				Needs["ConnorGray`CellInsertionMenu`" -> None];
+				ConnorGray`CellInsertionMenu`CreateNewCellMenu[
 					EvaluationCell[],
 					CurrentValue["EventKey"]
 				];
@@ -72,7 +72,7 @@ Notebook[{
 	(*====================================================*)
 
 	Cell[
-		StyleData["ConnorGray/NewCellMenuItem"],
+		StyleData["ConnorGray/CellInsertionMenuItem"],
 		(*
 			Parameters: {label, action}
 		*)
