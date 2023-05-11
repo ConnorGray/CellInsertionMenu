@@ -142,9 +142,9 @@ $stylePreviews = AssociationMap[
 		"Title", "Subtitle", "Subsubtitle", "Chapter", "Subchapter",
 		"Section", "Subsection", "Subsubsection", "Subsubsubsection",
 		"Subsubsubsubsection",
-		"Item", "ItemNumbered", "ItemParagraph",
-		"Subitem", "SubitemNumbered", "SubitemParagraph",
-		"Subsubitem", "SubsubitemNumbered", "SubsubitemParagraph"
+		"Item", "Subitem", "Subsubitem",
+		"ItemNumbered", "SubitemNumbered",  "SubsubitemNumbered",
+		"ItemParagraph", "SubitemParagraph", "SubsubitemParagraph"
 	}
 ];
 
