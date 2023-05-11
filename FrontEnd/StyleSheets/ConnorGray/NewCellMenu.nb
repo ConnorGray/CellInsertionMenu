@@ -1,0 +1,54 @@
+Notebook[{
+    Cell[StyleData[StyleDefinitions -> "Default.nb"]],
+
+	Cell[StyleData["Input"],
+		StyleKeyMapping -> {
+			"/" -> "ConnorGray/NewCellMenu",
+			(* Built in. This may need to be updated periodically. *)
+			"=" -> "WolframAlphaShort",
+			"*" -> "Item",
+			">" -> "ExternalLanguageDefault"
+		}
+	],
+
+	Cell[StyleData["ConnorGray/NewCellMenu"],
+		Background -> GrayLevel[0.9],
+		FormatType -> TextForm,
+		Initialization :> (
+			Needs["ConnorGray`NewCellMenu`" -> None];
+			ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[]]
+		),
+		CellMargins -> {{66, 10}, {5, 8}},
+		CellEventActions -> {
+			(* Note: This undocumented option causes the cell event handler
+				actions to be run AFTER the default FE behavior for the
+				event runs (the default is that user-specified event handlers
+				are run before the default FE ones).
+
+				We want this because we need the character the user typed to
+				be added to the content of the cell before we read the
+				contents of the cell in our "KeyDown" event hander. *)
+			"UpArrowKeyDown" -> (
+				Needs["ConnorGray`NewCellMenu`" -> None];
+				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], Up]
+			),
+			"DownArrowKeyDown" -> (
+				Needs["ConnorGray`NewCellMenu`" -> None];
+				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], Down]
+			),
+			"ReturnKeyDown" :> (
+				Needs["ConnorGray`NewCellMenu`" -> None];
+				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], Enter]
+			),
+			EvaluationOrder -> Before,
+			(* "UpArrowKeyDown" :> (
+				Print["UP ARROW"];
+			), *)
+			(* PassEventsDown -> True, *)
+			(* "KeyDown" :> (
+				Needs["ConnorGray`NewCellMenu`" -> None];
+				ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[], CurrentValue["EventKey"]]
+			) *)
+		}
+	]
+}]
