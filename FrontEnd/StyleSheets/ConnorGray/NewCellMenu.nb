@@ -18,6 +18,11 @@ Notebook[{
 			Needs["ConnorGray`NewCellMenu`" -> None];
 			ConnorGray`NewCellMenu`CreateNewCellMenu[EvaluationCell[]]
 		),
+		CellDynamicExpression -> Dynamic[
+			If[SelectedCells[] =!= {EvaluationCell[]},
+				NotebookDelete[EvaluationCell[]]
+			];
+		],
 		CellMargins -> {{66, 10}, {5, 8}},
 		CellEventActions -> {
 			(* Note: This undocumented option causes the cell event handler
