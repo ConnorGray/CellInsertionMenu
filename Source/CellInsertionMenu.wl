@@ -1,5 +1,7 @@
 BeginPackage["ConnorGray`CellInsertionMenu`"]
 
+$CellInsertionMenuWidth = 300
+
 Needs["GeneralUtilities`"]
 
 GeneralUtilities`SetUsage[CreateNewCellMenu, "
@@ -131,14 +133,36 @@ makeSelection[args___] := Throw[{"bad args", args}]
 
 (*====================================*)
 
-rasterizeStyle[style_?StringQ] :=
-	ImageCrop @ Rasterize @ Notebook[{
+rasterizeStyle[style_?StringQ] := Module[{
+	image
+},
+	image = ImageCrop @ Rasterize @ Notebook[{
 		Cell[style, style],
 		Cell["", "Text"]
-	}]
+	}];
+
+	image = Image[image, ImageSize -> All];
+
+	leftMargin = Replace[CurrentValue[{StyleDefinitions, style, CellMargins}], {
+		constant_?NumberQ :> constant,
+		{{left_?NumberQ, _}, {_, _}} :> left,
+		other_ :> 10
+	}];
+
+	(*
+		Subtract 27, which is the left margin of "Title" cells, and is the
+		smallest left margin of all of the common built-in cell styles.
+
+		Prevent this from being less than 10 to avoid poor asthetics of having
+		one of these preview touching the left edge of the menu.
+	*)
+	leftMargin = Max[leftMargin - 27, 10];
+
+	Pane[image, ImageMargins -> {{leftMargin, 0}, {0, 0}}]
+]
 
 $stylePreviews = AssociationMap[
-	style |-> Image[rasterizeStyle[style], ImageSize -> All],
+	style |-> rasterizeStyle[style],
 	{
 		"Title", "Subtitle", "Subsubtitle", "Chapter", "Subchapter",
 		"Section", "Subsection", "Subsubsection", "Subsubsubsection",
@@ -170,7 +194,7 @@ MakeMenuContent[items0_?ListQ] := Module[{
 	Framed[Column[items],
 		Frame -> All,
 		Background -> White,
-		ImageSize -> {250, Automatic}
+		ImageSize -> {$CellInsertionMenuWidth, Automatic}
 	]
 ]
 
