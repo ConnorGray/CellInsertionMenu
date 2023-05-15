@@ -18,6 +18,10 @@ Notebook[{
 			Needs["ConnorGray`CellInsertionMenu`" -> None];
 			ConnorGray`CellInsertionMenu`CreateNewCellMenu[EvaluationCell[]]
 		),
+		(* Delete the CellInsertionMenu cell if it is no longer the selected
+			cell. Unlike other cells, this is a very ephemeral cell. Its only
+			purpose is to insert another cell, so if the users selection has
+			left this cell, there is no reason to keep it around. *)
 		CellDynamicExpression -> Dynamic[
 			If[SelectedCells[] =!= {EvaluationCell[]},
 				NotebookDelete[EvaluationCell[]]
