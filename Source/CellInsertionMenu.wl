@@ -54,6 +54,11 @@ UpdateCellInsertionMenu[
 					Return[Null, Module];
 				];
 			),
+			(* Escape key *)
+			{27} :> (
+				NotebookDelete[EvaluationCell[]];
+				Return[Null, Module];
+			),
 			(* Up Arrow *)
 			{63232} :> (
 				selectedIndex = Replace[selectedIndex, {
