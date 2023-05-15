@@ -16,7 +16,7 @@ Notebook[{
 		FormatType -> TextForm,
 		Initialization :> (
 			Needs["ConnorGray`CellInsertionMenu`" -> None];
-			ConnorGray`CellInsertionMenu`CreateNewCellMenu[EvaluationCell[]]
+			ConnorGray`CellInsertionMenu`UpdateCellInsertionMenu[EvaluationCell[]]
 		),
 		(* Delete the CellInsertionMenu cell if it is no longer the selected
 			cell. Unlike other cells, this is a very ephemeral cell. Its only
@@ -63,7 +63,7 @@ Notebook[{
 			EvaluationOrder -> After,
 			"KeyDown" :> (
 				Needs["ConnorGray`CellInsertionMenu`" -> None];
-				ConnorGray`CellInsertionMenu`CreateNewCellMenu[
+				ConnorGray`CellInsertionMenu`UpdateCellInsertionMenu[
 					EvaluationCell[],
 					CurrentValue["EventKey"]
 				];

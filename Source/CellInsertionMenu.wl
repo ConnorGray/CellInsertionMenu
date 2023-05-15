@@ -4,13 +4,13 @@ $CellInsertionMenuWidth = 300
 
 Needs["GeneralUtilities`"]
 
-GeneralUtilities`SetUsage[CreateNewCellMenu, "
-CreateNewCellMenu[cellobj$] attaches a new cell menu to the cellobj$.
+GeneralUtilities`SetUsage[UpdateCellInsertionMenu, "
+UpdateCellInsertionMenu[cellobj$] updates the new cell menu attached to the cellobj$, creating it if necessary.
 "]
 
 Begin["`Private`"]
 
-CreateNewCellMenu[
+UpdateCellInsertionMenu[
 	newMenuCell_CellObject,
 	eventKey : _?StringQ : None
 ] := Module[{
