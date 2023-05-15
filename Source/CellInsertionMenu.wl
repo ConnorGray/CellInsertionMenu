@@ -17,7 +17,9 @@ UpdateCellInsertionMenu[
 	filter,
 	items,
 	menuItems,
-	selectedIndex = CurrentValue[newMenuCell, {TaggingRules, "SelectedIndex"}]
+	visibleItems,
+	selectedIndex = CurrentValue[newMenuCell, {TaggingRules, "SelectedIndex"}],
+	attachedMenuCell
 },
 	If[CurrentValue[newMenuCell, CellStyle] =!= {"ConnorGray/CellInsertionMenu"},
 		Return[$Failed, Module];
@@ -31,10 +33,9 @@ UpdateCellInsertionMenu[
 		""
 	];
 
-	(* Prevent more than one new cell menu from being open at a time. *)
-	NotebookDelete @ Flatten @ Map[
-		cell |-> Cells[cell, AttachedCell -> True],
-		Cells[ParentNotebook[newMenuCell], CellStyle -> "ConnorGray/CellInsertionMenu"]
+	visibleItems = Map[
+		StringStartsQ[filter, IgnoreCase -> True],
+		Keys[$stylePreviews]
 	];
 
 	items = KeySelect[$stylePreviews, StringStartsQ[filter, IgnoreCase -> True]];
@@ -88,10 +89,21 @@ UpdateCellInsertionMenu[
 	selectedIndex = Clip[selectedIndex, {1, Length[items]}];
 
 	CurrentValue[newMenuCell, {TaggingRules, "SelectedIndex"}] = selectedIndex;
+	CurrentValue[newMenuCell, {TaggingRules, "VisibleItems"}] = visibleItems;
 
 	(*-------------------------------------*)
 	(* Compute the updated menu to display *)
 	(*-------------------------------------*)
+
+	Replace[Cells[newMenuCell, AttachedCell -> True], {
+		{} :> Null,
+		(* TODO: What if this cell doesn't exist? *)
+		(* An attached menu cell already exists, so don't try to attach it again. *)
+		{cell_CellObject} :> (
+			Return[Null, Module];
+		),
+		other_ :> Throw["FIXME: Unexpected Cells[..] result in CellInsertionMenu"]
+	}];
 
 	menuItems = KeyValueMap[
 		{style, preview} |-> (
@@ -102,19 +114,9 @@ UpdateCellInsertionMenu[
 		items
 	];
 
-	If[selectedIndex <= Length[menuItems],
-		menuItems = ReplaceAt[
-			menuItems,
-			RuleDelayed[preview_, action_] :> (
-				Framed[preview, Background -> LightBlue] :> action
-			),
-			selectedIndex
-		];
-	];
-
 	AttachCell[
 		newMenuCell,
-		MakeMenuContent[menuItems],
+		MakeCompletionMenuContent[menuItems],
 		{Left, Bottom},
 		{0, 0},
 		{Left, Top},
@@ -141,12 +143,24 @@ makeSelection[args___] := Throw[{"bad args", args}]
 rasterizeStyle[style_?StringQ] := Module[{
 	image
 },
-	image = ImageCrop @ Rasterize @ Notebook[{
-		Cell[style, style],
-		Cell["", "Text"]
+	image = Row[{
+		Replace[CurrentValue[{StyleDefinitions, style, CellDingbat}], {
+			None -> Nothing,
+			boxes_ :> Splice @ {
+				(* Wrap StyleBox[_, style] so that the cell dingbat is rendered
+					as if it was inheriting styles from the parent cell. *)
+				RawBoxes[StyleBox[boxes, style]],
+				Spacer[
+					AbsoluteCurrentValue[{
+						StyleDefinitions,
+						style,
+						CellDingbatMargin
+					}]
+				]
+			}
+		}],
+		RawBoxes @ Cell[style, style]
 	}];
-
-	image = Image[image, ImageSize -> All];
 
 	leftMargin = Replace[CurrentValue[{StyleDefinitions, style, CellMargins}], {
 		constant_?NumberQ :> constant,
@@ -180,7 +194,7 @@ $stylePreviews = AssociationMap[
 
 (*========================================================*)
 
-MakeMenuContent[items0_?ListQ] := Module[{
+MakeCompletionMenuContent[items0_?ListQ] := Module[{
 	items = items0
 },
 	items = Map[
@@ -196,8 +210,50 @@ MakeMenuContent[items0_?ListQ] := Module[{
 		items0
 	];
 
-	Framed[Column[items],
-		Frame -> All,
+	items = MapIndexed[
+		{item, pos} |-> With[{
+			index = pos[[1]]
+		},
+			PaneSelector[
+				{
+					True -> Framed[
+						item,
+						Background -> Dynamic[
+							If[
+								CurrentValue[
+									ParentCell[EvaluationCell[]],
+									{TaggingRules, "SelectedIndex"}
+								] === index
+								,
+								Lighter[Blue]
+								,
+								Automatic
+							]
+						],
+						ImageSize -> Full,
+						ImageMargins -> 0
+					],
+					False -> ""
+				},
+				Dynamic[
+					FEPrivate`Part[
+						CurrentValue[
+							ParentCell[EvaluationCell[]],
+							{TaggingRules, "VisibleItems"}
+						],
+						index
+					]
+				],
+				ImageSize -> Automatic
+			]
+		],
+		items
+	];
+
+	Pane[
+		Column[items,
+			Spacings -> 0
+		],
 		Background -> White,
 		ImageSize -> {$CellInsertionMenuWidth, Automatic}
 	]
