@@ -11,8 +11,8 @@ Notebook[{
 		}
 	],
 
-	Cell[StyleData["ConnorGray/CellInsertionMenu"],
-		Background -> GrayLevel[0.9],
+	Cell[StyleData["ConnorGray/CellInsertionMenu", StyleDefinitions -> "Text"],
+		Background -> GrayLevel[0.95],
 		FormatType -> TextForm,
 		Initialization :> (
 			Needs["ConnorGray`CellInsertionMenu`" -> None];
@@ -68,7 +68,21 @@ Notebook[{
 					CurrentValue["EventKey"]
 				];
 			)
-		}
+		},
+		CellDingbat -> Cell[
+			BoxData @ StyleBox[
+				"+",
+				RGBColor[0.2, 0.4, 0.2],
+				FontSize -> 28,
+				FontWeight -> Bold
+			],
+			Background -> GrayLevel[0, 0]
+		],
+		CellFrame -> True,
+		CellFrameStyle -> Directive[
+			Dashing[{Small, Small}],
+			RGBColor[0, Rational[2, 3], 0]
+		]
 	],
 
 	(*====================================================*)
