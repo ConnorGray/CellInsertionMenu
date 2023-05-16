@@ -214,48 +214,42 @@ MakeCompletionMenuContent[items0_?ListQ] := Module[{
 		{item, pos} |-> With[{
 			index = pos[[1]]
 		},
-			PaneSelector[
-				{
-					True -> Framed[
-						item,
-						Background -> Dynamic[
-							If[
-								CurrentValue[
-									ParentCell[EvaluationCell[]],
-									{TaggingRules, "SelectedIndex"}
-								] === index
-								,
-								Lighter[Blue]
-								,
-								Automatic
-							]
-						],
-						ImageSize -> Full,
-						ImageMargins -> 0
-					],
-					False -> ""
-				},
-				Dynamic[
-					FEPrivate`Part[
+			Framed[
+				item,
+				Background -> Dynamic[
+					If[
 						CurrentValue[
 							ParentCell[EvaluationCell[]],
-							{TaggingRules, "VisibleItems"}
-						],
-						index
+							{TaggingRules, "SelectedIndex"}
+						] === index
+						,
+						RGBColor[0.12941176470588237`, 0.6196078431372549, 0.7372549019607844]
+						,
+						Automatic
 					]
 				],
-				ImageSize -> Automatic
+				ImageSize -> Full,
+				ImageMargins -> 0
 			]
 		],
 		items
 	];
 
-	Pane[
-		Column[items,
-			Spacings -> 0
-		],
-		Background -> White,
-		ImageSize -> {$CellInsertionMenuWidth, Automatic}
+	With[{items1 = items},
+		Dynamic @ Pane[
+			Column[
+				Pick[
+					items1,
+					CurrentValue[
+						ParentCell[EvaluationCell[]],
+						{TaggingRules, "VisibleItems"}
+					]
+				],
+				Spacings -> 0
+			],
+			Background -> White,
+			ImageSize -> {$CellInsertionMenuWidth, Automatic}
+		]
 	]
 ]
 
