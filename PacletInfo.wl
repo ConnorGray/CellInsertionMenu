@@ -3,6 +3,7 @@ PacletObject[<|
 	"PublisherID" -> "ConnorGray",
 	"Version" -> "0.0.1",
 	"WolframVersion" -> "13.2+",
+	"License" -> "MIT",
 	"Extensions" -> {
 		{
 			"Kernel",
